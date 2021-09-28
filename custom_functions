@@ -1,0 +1,127 @@
+// reference this if you want to use this as a library across multiple projects/sheets
+// https://medium.com/google-cloud/how-to-write-a-custom-function-library-for-google-sheets-87f62729e684
+
+/**
+ * A number (INT) defined in the appscript code
+ *
+ * @param No input needed for this custom function
+ * @return The lucky number
+ * @customFunction
+ */
+function customLuckyNumber() {
+
+  return 21;
+
+}
+/**
+ * A random name from a hardcoded list
+ *
+ * @param No input needed for this custom function
+ * @return A random name (string)
+ * @customFunction
+ */
+function customRandomName() {
+
+  var name_array = [
+    'Nick',
+    'Jen',
+    'Tim',
+    'Nate',
+    'Elvis',
+    'Stevie',
+    'Starlord',
+  ];
+  
+  var name = name_array[Math.floor(Math.random()*name_array.length)];
+
+  return name;
+
+}
+
+/**
+ * A custom hash function that includes a salt as well
+ *
+ * @param {value} string or number accepted
+ * @return The hashed value
+ * @customFunction
+ */
+function customHash (input_value) {
+  
+  var my_custom_salt = 'unccause21';
+
+  var hash = 0;
+  if (input_value.length == 0) return hash;
+
+  var string_to_hash = my_custom_salt + input_value;
+
+  for (i = 0; i < string_to_hash.length; i++) {
+      char = string_to_hash.charCodeAt(i);
+      hash = ((hash<<5)-hash)+char;
+      hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+
+}
+
+/**
+ * When the spreadsheet is open, add a custom menu
+ */
+function onOpen() {
+  var spreadsheet = SpreadsheetApp.getActive();
+  var customMenuItems = [
+    {name: 'Generate Table of Contents', functionName: 'createNewSheetAndTableOfContents'}
+  ];
+  spreadsheet.addMenu('UNCCAUSE 2021', customMenuItems);
+}
+
+function createNewSheetAndTableOfContents() {
+
+  var sheet_name = "Table of Contents";
+  
+  var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  
+  yourNewSheet = activeSpreadsheet.insertSheet(0);
+  yourNewSheet.setName(sheet_name);
+
+  var toc_sheet = activeSpreadsheet.getSheetByName(sheet_name);
+
+  // Freezes the first row
+  toc_sheet.setFrozenRows(1); 
+
+  var cell = toc_sheet.getRange(1,1);
+  cell.setValue('=customTableOfContents()');
+
+}
+
+/**
+ * Builds a Table of Contents in the spreadsheet.
+ * Based on https://gist.github.com/pfelipm/829ed62ab0c03b2beb0cfc2934f30b1e
+ * @param {true} includeId Include sheet ID
+ * @param {true} includeUrl Include link to sheet
+ * @return List of [Sheet name, Sheet ID, Sheet URL]
+ * @customfunction
+ */
+function customTableOfContents(includeId = true, includeUrl = true) {
+
+  const ss = SpreadsheetApp.getActive();
+  const baseUrl = ss.getUrl();
+  const toc = [];
+  
+  var i = 0;
+
+  const headerRow = [];
+  headerRow.push('Sheet_Name');
+  if (includeId) headerRow.push('Sheet_ID');
+  if (includeUrl) headerRow.push('Sheet_URL');
+  toc.push(headerRow);
+
+  ss.getSheets().forEach(sheet => {
+      const rowResult = [];
+      rowResult.push(sheet.getName());
+      if (includeId) rowResult.push(sheet.getSheetId());
+      if (includeUrl) rowResult.push(baseUrl + '#gid=' + sheet.getSheetId());
+      toc.push(rowResult);
+  });
+  return toc;
+  
+}
