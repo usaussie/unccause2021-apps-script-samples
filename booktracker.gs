@@ -7,12 +7,12 @@
 const DATA_TAB_NAME = 'your tab name';
 
 // Set sheet column order (using 0 index). IE: COLUMN A is 0, COLUMN B is 1
-const COLUMN_NUMBER_ISBN = 2;
-const COLUMN_NUMBER_TITLE = 5;
+const COLUMN_NUMBER_ISBN = 0;
+const COLUMN_NUMBER_TITLE = 1;
 
 // Set sheet column order for updating from the API details that come back (starting with Column A = 1, Column B = 2)
-const COLUMN_NUMBER_AUTHORS = 7;
-const COLUMN_NUMBER_DESCRIPTION = 8;
+const COLUMN_NUMBER_AUTHORS = 4;
+const COLUMN_NUMBER_DESCRIPTION = 3;
 
 // API URL
 const API_URL = "https://www.googleapis.com/books/v1/volumes?country=US";
@@ -83,9 +83,7 @@ function isbnLookup_(spreadsheetData) {
 
   // get last row number so we know when to end the loop
   var lastRow = dataSheet.getLastRow();
-
-  var folderIdMap = new Object();
-
+  
   // start of loop to go through each row iteratively
   for (var i=1; i<lastRow; i++) {
     
@@ -122,7 +120,7 @@ function isbnLookup_(spreadsheetData) {
         
       } else {
         // write error into Title cell and return false value
-        dataSheet.getRange(i+1, title_column_number).setValue('Error finding ISBN data. Please see Logs');
+        dataSheet.getRange(i+1, title_column_number).setValue('Error finding ISBN data.');
         return false;
       }
 
